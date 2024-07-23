@@ -116,8 +116,30 @@ GROUP BY location_state
 ORDER BY count DESC;
 
 -- How has employee count changed over time based on hire and term dates?
+SELECT 
+	year,
+    hires,
+    terminations,
+    hires-terminations AS net_change,
+   round( (hires-terminations)/hires*100,2) AS net_change_percent
+FROM(
+	SELECT YEAR(hire_date) AS year,
+    count(*) AS hires,
+    SUM(CASE WHEN termdate BETWEEN '1000-01-01' AND '9999-12-31' AND termdate <=curdate() THEN 1 ELSE 0 END) AS terminations
+    FROM hr 
+    WHERE age >= 18
+    GROUP BY YEAR(hire_date)) 
+    AS subquery
+    ORDER BY year ASC;
 
+    
 -- What tenure distribution for each department?
+
+SELECT department, round(AVG(datediff(termdate,hire_date)/365),0) AS avg_tenure_department
+FROM hr
+WHERE termdate BETWEEN '1000-01-01' AND '9999-12-31' AND age >=18
+GROUP BY department;
+
 
 
 
